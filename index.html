@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#100e1c">
+<title>深夜平交道的拼圖戀曲～在都市傳說中尋找妳的另一半～</title>
+<style>
+:root {
+  color-scheme:dark;
+  --ink:#120f19;
+  --paper:#fbf2f3;
+  --muted:#bcb1c2;
+  --accent:#ffc0c8;
+  --border:#534457;
+  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+}
+* { box-sizing:border-box }
+[hidden] { display:none!important }
+body { margin:0;min-height:100svh;display:grid;place-items:center;padding:20px 16px;background:var(--ink);color:var(--paper);font-family:system-ui,"Microsoft JhengHei",sans-serif }
+button { font:inherit;color:inherit;cursor:pointer }
+button:focus-visible { outline:2px solid var(--accent);outline-offset:4px }
+button:disabled { opacity:.55;cursor:default }
+.shell { width:min(1100px,100%) }
+.chrome { display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;color:var(--muted);font-size:13px;letter-spacing:.08em }
+.sound,.tools button,.panel button,.ending-screen button { border:1px solid var(--border);border-radius:6px;background:#241d2e;padding:9px 13px;min-height:40px }
+.sound:hover,.tools button:hover,.panel button:hover:not(:disabled),.ending-screen button:hover { border-color:var(--accent) }
+.book { display:grid;min-height:440px;aspect-ratio:16/9;border:1px solid var(--border);border-radius:12px;background:#1d1725 }
+.title-screen,.ending-screen { display:grid;place-items:center;padding:clamp(24px,5vw,60px);text-align:center }
+.title-content { width:min(100%,660px) }
+.eyebrow,.chapter,.end-kicker { color:var(--accent);font-size:13px;letter-spacing:.13em }
+.eyebrow { margin-bottom:16px;font-variant:small-caps }
+h1 { margin:0;font:800 clamp(32px,6.2vw,72px)/1.13 var(--serif);letter-spacing:.04em }
+h1 span { display:block;color:var(--accent) }
+.subtitle { margin:18px 0 28px;color:#ecdae8;font:600 clamp(14px,2.2vw,21px)/1.55 var(--serif) }
+.menu { display:grid;gap:8px;width:min(100%,330px);margin:auto }
+.menu button,.choices button { min-height:46px;border:1px solid var(--border);border-radius:6px;background:#2b2234;text-align:left }
+.menu button { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px }
+.menu small { color:var(--muted);font-size:12px }
+.menu button:hover,.choices button:hover:not(:disabled) { border-color:var(--accent);background:#423047 }
+.menu .primary,.end-actions button:last-child { background:var(--accent);border-color:var(--accent);color:#29192d;font-weight:750 }
+.menu .primary:hover,.end-actions button:last-child:hover { background:#ffdae0 }
+.game-screen { display:flex;flex-direction:column;padding:clamp(14px,3vw,34px) }
+.gamebar,.toolgroup,.tools { display:flex;flex-wrap:wrap;align-items:center;gap:7px }
+.gamebar { justify-content:space-between;row-gap:11px }
+.chapter { margin:0;font-weight:700 }
+.tools button { padding-inline:9px;font-size:13px }
+.tools button[aria-pressed="true"] { border-color:var(--accent);background:#543650 }
+.reading { display:grid;align-content:center;flex:1;gap:16px;width:min(100%,730px);margin:auto;padding:24px 0 }
+.dialogue { position:relative;display:block;width:100%;min-height:185px;border:1px solid var(--border);border-radius:8px;background:#241d2e;text-align:left;padding:20px 22px 52px;line-height:1.8 }
+.dialogue:hover:not(:disabled) { border-color:var(--accent) }
+.dialogue:disabled { opacity:1 }
+.speaker { display:block;margin-bottom:10px;color:var(--accent);font-weight:750;font-size:15px;letter-spacing:.08em }
+.line { display:block;min-height:3.6em;white-space:pre-line;font-size:clamp(17px,2.2vw,24px) }
+.next { position:absolute;right:20px;bottom:12px;color:var(--muted);font-size:13px;animation:blink 1s ease-in-out infinite alternate }
+.choices { display:grid;gap:8px }
+.choices button { padding:10px 13px;line-height:1.5 }
+.endcard { width:min(100%,620px) }
+.endcard h2,.panel h2 { margin:.5em 0;font:800 clamp(24px,4vw,46px)/1.25 var(--serif) }
+.end-actions { display:flex;flex-wrap:wrap;justify-content:center;gap:9px }
+.ending-screen.is-success {
+  border-radius:inherit;
+  background:radial-gradient(ellipse at top,#53343d 0%,#2e2237 55%,#1d1725 100%);
+}
+.is-success .endcard {
+  padding:clamp(20px,5vw,48px);
+  border:1px solid #ad825d;
+  border-radius:12px;
+  background:#221827;
+  box-shadow:0 0 32px #e8aa7740,inset 0 0 0 4px #d4a26b25;
+}
+.is-success .end-kicker { color:#e7c7a7 }
+.end-success {
+  margin:0 0 12px;
+  color:#ffdda7;
+  font:750 clamp(16px,3vw,23px)/1.4 var(--serif);
+  letter-spacing:.12em;
+}
+.is-success .endcard h2 { color:#fff1d6 }
+.is-success .end-actions button:last-child { background:#ffdda7;border-color:#ffdda7 }
+.is-success .end-actions button:last-child:hover { background:#fff1d6 }
+.book:has(.ending-screen.is-success:not([hidden])) { border-color:#ad825d }
+dialog { padding:0;color:var(--paper);width:min(570px,calc(100% - 30px));max-height:85svh;background:#251c34;border:1px solid var(--border);border-radius:8px }
+dialog::backdrop { background:#0b0818bb }
+.panel { padding:20px }
+.panel-head { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px }
+.panel h2 { font-size:26px;margin:0 }
+.entries { display:grid;gap:8px }
+.entries button { text-align:left }
+.entries small { display:block;color:var(--muted);margin-top:4px }
+.entries .locked { padding:10px 13px;border:1px solid var(--border);border-radius:6px;color:var(--muted) }
+.entries p { margin:0;padding:8px 0;border-bottom:1px solid var(--border);line-height:1.6 }
+.entries p strong { display:block;color:var(--accent);font-size:13px }
+.panel-nav { margin-top:13px }
+.toast { position:fixed;z-index:8;left:50%;bottom:18px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);border:1px solid var(--border);background:#31233d;padding:9px 14px;border-radius:6px;text-align:center;font-size:14px }
+@keyframes blink { to { opacity:.5 } }
+@media(max-width:650px) {
+  .book { aspect-ratio:auto;min-height:min(590px,calc(100svh - 96px)) }
+  .chapter { width:100% }
+  .dialogue { padding:16px 14px 44px }
+  .sound,.tools button,.panel button,.ending-screen button { min-height:44px }
+  .tools { gap:4px }
+  .tools button { padding-inline:7px }
+}
+@media(prefers-reduced-motion:reduce) { .next { animation:none } }
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="chrome top">
+    <span>怪談研究社</span>
+    <button class="sound" id="sound" type="button"></button>
+  </header>
+  <div class="book">
+    <section id="titleScreen" class="title-screen" aria-labelledby="title">
+      <div class="title-content">
+        <div class="eyebrow">MIDNIGHT CROSSING</div>
+        <h1 id="title">深夜平交道的<span>拼圖戀曲</span></h1>
+        <p class="subtitle">～在都市傳說中尋找妳的另一半～</p>
+        <nav class="menu" aria-label="主選單">
+          <button class="primary" id="start" type="button"><strong>開始遊戲</strong><small>NEW GAME</small></button>
+          <button id="continue" type="button"><strong>讀取進度</strong><small>LOAD</small></button>
+          <button id="gallery" type="button"><strong>結局圖鑑</strong><small id="galleryCount"></small></button>
+        </nav>
+      </div>
+    </section>
+    <section id="gameScreen" class="game-screen" aria-label="遊戲畫面" hidden>
+      <div class="gamebar"><h2 class="chapter" id="chapter"></h2><div class="toolgroup"><div class="tools" aria-label="遊戲工具">
+        <button data-panel="save">存檔</button><button data-panel="load">讀檔</button><button data-panel="log">歷史對話</button><button id="auto" aria-pressed="false">自動播放</button><button id="skip" aria-pressed="false">跳過</button>
+      </div></div></div>
+      <div class="reading">
+        <button class="dialogue" id="dialogue" type="button"><span class="speaker" id="speaker"></span><span class="line" id="line"></span><span class="next" id="next" aria-hidden="true">繼續 ↵</span></button>
+        <div class="choices" id="choices" aria-label="劇情選項" hidden></div>
+      </div>
+    </section>
+    <section class="ending-screen" id="endingScreen" aria-labelledby="endTitle" hidden>
+      <article class="endcard">
+        <p class="end-success" id="endSuccess" hidden></p>
+        <div class="end-kicker" id="endNumber"></div>
+        <h2 id="endTitle"></h2>
+        <div class="end-actions"><button id="backChoice">回到最後選項</button><button id="endHome">返回標題</button></div>
+      </article>
+    </section>
+  </div>
+</main>
+<dialog id="modal" aria-labelledby="panelTitle"><div class="panel"><div class="panel-head"><h2 id="panelTitle"></h2><button id="closePanel" aria-label="關閉">✕</button></div><div id="entries" class="entries"></div><div id="panelNav" class="panel-nav" hidden><button id="gameHome">返回標題</button></div></div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const R="白川 凜", H="花子", S="淺井 悠真", M="八尺學姊", L="賣腳婆婆", K="裂口女", T="高速婆婆", N="旁白";
+const line = (who,text,fx) => ({who,text,fx});
+const choice = (text,to,delta={}) => ({text,to,delta});
+const scene = (label,lines,next=null,picks=null,ending=null) => ({label,lines,next,picks,ending});
+const festivalLabel = "7月31日 煙火大會之夜";
+const scenes = {
+  intro: scene("序章｜7月18日 23:30｜深夜平交道",[
+    line(N,"晚上十一點半，暑假還有半小時才正式開始。我站在平交道前，聽警鈴把短短的歸途敲成一趟遠足。","bell"),
+    line(S,"淺井悠真，都市傳說研究社社長。今晚的調查成果是一罐沒拉環的汽水，和一台還有四成電的 Nintendo Switch。"),
+    line("平交道","カン、カン、カン……"),
+    line("？？？","テケ、テケ、テケ……","thud"),
+    line(N,"紅光一閃，一個穿水手服的女孩用雙手撐地，沿著柏油路衝過來。那速度大概有一百五十公里。"),
+    line("？？？","讓、讓開！我只練過直線煞車！"),
+    line(S,"妳往我這裡滑的路線倒是挺直的！"),
+    line(N,"她在我的鞋尖前停下。她把磨破的袖口藏到身後，抬頭看我。")
+  ],null,[
+    choice("「滾、滾回地獄去啊——！」","badRun"),
+    choice("「同學，大晚上的在柏油路上爬會磨破制服，要不要搭我的便車？」","pact",{rin:15})
+  ]),
+  badRun: scene("序章｜7月18日 23:30｜深夜平交道",[
+    line(N,"我對自己俐落的九十度轉彎十分滿意，直到發現女孩已經在轉角等我。"),
+    line(R,"你掉了東西。","thud"),
+    line(N,"她舉起我的學生證。那張照片還留著我對自己腿力的信心。"),
+    line(S,"妳能不能順便把我的自尊也撿回來？")
+  ],null,null,"run"),
+  pact: scene("序章｜7月18日 23:30｜深夜平交道",[
+    line(R,"便、便車？你騎的是有菜籃的那輛？"),
+    line(S,"外婆的買菜車。服務範圍包括從平交道到任何一家還開著的便利商店。"),
+    line(N,"她看看車，又看看掌心。我遞給她一張 OK 繃，等她自己決定要不要接。"),
+    line(R,"我叫白川凜。學校裡我會用輪椅。你能替我保守今晚的秘密嗎？"),
+    line(S,"可以。修制服的費用妳也可以用一顆布丁抵銷。"),
+    line(R,"那我買兩顆。你推車的時候不能吃，回去再分。"),
+    line(N,"我去解車鎖。身後傳來很輕的一聲笑，像有人終於確定可以回家了。")
+  ],"day1"),
+  day3: scene("Day 3｜7月24日 黃昏｜田間小路",[
+    line(N,"為了找祭典的煙火觀賞點，我們四個沿著田埂走。學姊收起白帽，免得替整片稻田遮陽。"),
+    line(H,"社長你選的捷徑也太長了。走完我都能從國中畢業。"),
+    line(R,"等等。那個白色的東西……剛才的風已經停了。"),
+    line(N,"稻浪靜下來，田裡卻有一道白影，一節一節地折動，彷彿聽著我們聽不到的拍子。","thud"),
+    line(M,"是扭來扭去。先把眼睛移開，理解它的動作也會受影響。"),
+    line(H,"社長的專長就是別人說別看，他偏要回頭確認一下。"),
+    line(N,"我的手指摸到背包裡的 Switch。田裡的白影又換了一拍。")
+  ],null,[
+    choice("「這扭動的頻率……好像某種失傳的現代舞，讓我仔細看清楚——！」","badDance"),
+    choice("「大家快移開視線！看我用 Switch 的《Just Dance》節拍把它的頻率蓋過去！」","dance",{rin:10,hanako:10,hachishaku:10})
+  ]),
+  badDance: scene("Day 3｜7月24日 黃昏｜失控的田埂",[
+    line(S,"原來是先把肩膀往左，再把膝蓋……欸，我沒有想動啊。"),
+    line(R,"悠真，停下來。你已經跳到我的輪椅後面了。"),
+    line(N,"我和白影隔著田，整齊地抬起一隻手。那一刻，我成了它的舞伴。"),
+    line(H,"悠真，聽我的聲音。我在這裡，往我這邊走。"),
+    line(N,"十年後，校慶攤位上依然有兩個身影在跳舞。值班表只寫了歌名，從未寫過交班時間。")
+  ],null,null,"dance"),
+  dance: scene("Day 3｜7月24日 黃昏｜稻浪舞池",[
+    line(N,"我把 Switch 架在田埂石頭上，轉開視線，只聽節拍。白影沉默了整整四拍。"),
+    line(H,"它跟上了欸。等一下，它是不是轉得比你順？"),
+    line(S,"它沒有關節。看到沒有，這就是規則設計的漏洞。"),
+    line(M,"錢包收好，學弟。你剛才跳到把口袋裡的發票都抖出來了。"),
+    line(N,"凜把水遞給我，我們四個背向稻田，替新舞伴鼓完最後一個八拍。"),
+    line(R,"你在發抖還是等它跳完才走。下次……也教我那段副歌好不好？"),
+    line(H,"我報名當評審。學姊當裁判，負責把兩個跳下田的人拎回來。")
+  ],"day4")
+};
+
+function addDay(id, date, lines, next, visits) {
+  const invitations = [];
+  for (const [heroine, visit] of Object.entries(visits)) {
+    const eventId = id + "_" + heroine;
+    const label = date + "｜" + visit.place;
+    invitations.push(choice(visit.invite,eventId));
+    const replies = visit.replies.map(([spoken, points, reaction],i) => {
+      const reactionId = eventId + "_" + i;
+      scenes[reactionId] = scene(label,reaction,next);
+      return choice(spoken,reactionId,{[heroine]:points});
+    });
+    scenes[eventId] = scene(label,visit.lines,null,replies);
+  }
+  scenes[id] = scene(date,lines,null,invitations);
+}
+
+addDay("day1","Day 1｜7月20日 午休",[
+  line(N,"七月二十日，暑輔鐘聲一響，我把便當從課本底下抽出來。蓋子上多了三張字條。"),
+  line(S,"頂樓、三樓第三間、後山。我只是想吃個飯，怎麼會有三種不同難度的地圖？"),
+  line(N,"凜留了筷子，花子用紅筆畫了個飯糰，學姊交代我沿著有樹蔭的那一側走。三張字條背面都寫著『等你』。")
+],"day2",{
+  rin:{
+    place:"頂樓便當",
+    invite:"「凜，我帶了便當。今天可以坐在妳旁邊吃嗎？」",
+    lines:[
+      line(N,"屋頂晒得發白。凜把便當打開，風立刻捲走她膝上的餐巾。她一手抓餐巾，一手扶住打滑的便當盒。"),
+      line(R,"玉子燒先救！那是最後一塊，我捲了三次才成形。"),
+      line(S,"救到了。光憑這段反應速度，我們就可以組一隊消防社。"),
+      line(N,"她收回手，指節還繃得很緊。盒蓋邊上有兩雙筷子，她小聲問我要不要一起吃。")
+    ],
+    replies:[
+      ["「妳先扶穩。我餵妳吃一口玉子燒，好嗎？」",15,[
+        line(R,"你可以轉過去一點嗎？我張嘴的樣子很好笑。"),
+        line(S,"好。我只看雲。雲今天很忙，沒有空作證。"),
+        line(N,"筷尖忽然一輕。她咀嚼完，把另一雙筷子推到我掌心。"),
+        line(R,"下一口換你。雲也不准看。")
+      ]],
+      ["「我下次拿膠帶把妳黏在輪椅上好了，這樣就能保持平衡了吧？」",-15,[
+        line(R,"我拿得穩。你扶一下盒子就好。"),
+        line(N,"她重新攤好餐巾，把便當挪回自己膝上。後來我拿筷子時，她先把手收了回去。"),
+        line(S,"我說過頭了。對不起。"),
+        line(R,"嗯。你吃完可以先下去，我想再吹一會兒風。")
+      ]]
+    ]
+  },
+  hanako:{
+    place:"舊校舍三樓第三間",
+    invite:"「花子，我分妳一個飯糰。今天能借我第三間旁邊的窗台嗎？」",
+    lines:[
+      line(N,"我敲了三下。第三間的門沒開，窗台上卻多了一個穿舊式制服的雙馬尾女孩。"),
+      line(H,"飯糰放左邊。右邊是我國二時的座位，由窗邊的瓷磚替我保留。"),
+      line(S,"這是全校最難借到的用餐場地嗎？"),
+      line(H,"看你回答。當了這麼久的花子，你覺得我看起來幾歲？")
+    ],
+    replies:[
+      ["「我覺得妳永遠都是最可愛的國中生。這顆飯糰我挑了最大的給妳。」",15,[
+        line(H,"最可愛啊……再說一遍。等我找到可以錄音的手機。"),
+        line(N,"她踢了踢懸空的腳，把靠窗最涼快的位置讓給我。"),
+        line(H,"你下次也可以來。敲三下就好，飯糰我會自己準備。")
+      ]],
+      ["「那我是不是該叫妳一聲花子阿姨？」",-15,[
+        line(H,"阿姨啊。行，便當記得慢慢吃，我先去午睡。"),
+        line(N,"窗台一下就空了。她還替我留了位置，只把那個飯糰原封不動地擱在右邊。"),
+        line(S,"花子，我剛才開的玩笑很糟。明天妳想罵我，我會來聽。")
+      ]]
+    ]
+  },
+  hachishaku:{
+    place:"後山銀杏樹下",
+    invite:"「學姊，我可以帶便當去銀杏樹下，和妳一起吃嗎？」",
+    lines:[
+      line(N,"白帽放在銀杏樹根上，遠看像一桌還沒掀蓋的點心。學姊用竹葉折了兩個筷架。"),
+      line(M,"學弟，你午休又熬著修社團的報告了？眼睛快睜不開了。"),
+      line(S,"我只改到半夜兩點。第三頁的頁碼終於肯回到第三頁。"),
+      line(M,"離打鐘還有二十分鐘。要是你願意，可以躺在我腿上休息一會兒。")
+    ],
+    replies:[
+      ["「那我就借一下學姊的膝蓋。妳身上有淡淡的皂香，聞起來好安心。」",15,[
+        line(N,"她替我撥開頸後的葉子，又把自己的帽子抬高一點，好讓我的鼻子透氣。"),
+        line(M,"我用的是操場旁販賣機前賣的那種肥皂。你喜歡的話，下次拿一塊給你。"),
+        line(S,"我醒來前，能不能先替我保守剛才打呼的秘密？"),
+        line(M,"你還沒睡著，學弟。")
+      ]],
+      ["「我躺下去肯定像被巨人捉走了吧？我還是坐著好了。」",-10,[
+        line(M,"坐著也很好。我把帽子掛低些，你那邊還有太陽。"),
+        line(N,"她把落在膝上的葉子一片片揀掉，之後一直和我隔著一個飯盒的距離。"),
+        line(S,"對不起，我不該那樣說妳。"),
+        line(M,"嗯。下回你累了，可以直接說想自己坐一會兒。")
+      ]]
+    ]
+  }
+});
+
+addDay("day2","Day 2｜7月22日 放學後",[
+  line(N,"最後一節課的粉筆灰還沒散。我的背包裡有兩支手把，和一個用社費以外的零錢買的紅豆麵包。"),
+  line(S,"預算表上『社團交際費』是零元。原來是因為所有交際費都從我的錢包直接扣。"),
+  line(N,"隔壁教室有人開始疊椅子。我看了一眼還剩三小時的夕陽，決定今天要去哪裡。")
+],"day3",{
+  rin:{
+    place:"社辦雙人遊戲",
+    invite:"「凜，社辦有兩支手把。妳要和我把昨天卡住的那關打完嗎？」",
+    lines:[
+      line(R,"這次你過橋，我墊後。上一次我們一起掉下去，遊戲甚至沒有給合葬的成就。"),
+      line(S,"是妳衝刺太早。我只是在後面勇敢地跟著犯錯。"),
+      line(N,"過關的瞬間，她高興得往前探。手肘一滑，整個人從沒鋪好防滑墊的座椅邊緣往下跌。"),
+      line(R,"欸、等……！")
+    ],
+    replies:[
+      ["「凜，我先扶住妳的肩膀。妳坐穩了我就放手。」",15,[
+        line(N,"我兩手穩住她的肩，等她用手肘撐回座位。她先確認手把還在，才抬頭看我。"),
+        line(R,"你真的等我說好了才放。……嗯，我好了。"),
+        line(S,"那另一隻手也能交還我的手把了嗎？"),
+        line(R,"這隻再借我一下。下一關是我選的。")
+      ]],
+      ["「我的腳趾好痛。妳光是上半身砸下來就這麼重喔？」",-15,[
+        line(R,"抱歉。我的墊子滑了，我自己調。"),
+        line(N,"她低頭把防滑墊折好，一直沒有抬頭。我站在旁邊，突然覺得那根腳趾根本沒那麼痛。"),
+        line(S,"剛才應該先問妳有沒有撞到。"),
+        line(R,"沒有。我們存檔吧，剩下那關改天。")
+      ]]
+    ]
+  },
+  hanako:{
+    place:"三樓的瑪利歐賽車",
+    invite:"「花子，我帶了 Switch。妳要跟我跑一圈《瑪利歐賽車》嗎？」",
+    lines:[
+      line(N,"第三間外架起了兩個飯盒，成為我們的 Switch 支架。花子堅持窗台是她的主場。"),
+      line(H,"這條彩虹路為什麼沒有護欄？我那個年代的學校還比較注重安全。"),
+      line(S,"妳上一圈是自己倒車下去的。"),
+      line(N,"她握著手把，盯著倒數第一的名次。剛才一直踢門板的雙腳也停了。")
+    ],
+    replies:[
+      ["「我帶了草莓大福。再跑一場前，妳要跟我一人吃一半嗎？」",15,[
+        line(H,"……草莓那半邊是我先選的。喔，整顆草莓都在這邊。"),
+        line(S,"我掰開之前就知道會發生這件事。"),
+        line(H,"下次我帶點心來。你也要教我怎麼甩尾。"),
+        line(N,"她把手把擺到我旁邊，像是替下一次來訪占好了位置。")
+      ]],
+      ["「我閉著眼睛都能跑得比妳好，妳的技術也太爛了吧？」",-15,[
+        line(H,"對啊，你兩眼閉上剛好不會看見我退房。"),
+        line(N,"手把落回窗台。第三間的門發出一聲不輕不重的響。"),
+        line(S,"花子，剛才看到妳這麼認真，我不該那樣說。"),
+        line(N,"門內沉默了一會兒。最後有隻手伸出來，把兩台飄在半空的遊戲設備一起放穩。")
+      ]]
+    ]
+  },
+  hachishaku:{
+    place:"後山紅豆麵包",
+    invite:"「學姊，我買了紅豆麵包。妳願意和我分著吃嗎？」",
+    lines:[
+      line(N,"銀杏樹下的木椅被晒得太燙，學姊把白帽橫過來，我們才有一小塊能坐的蔭影。"),
+      line(M,"麵包還溫的。你路上一直把它抱在胸口嗎？"),
+      line(S,"我怕它在背包裡和字典打架。以前輸掉的是奶油餐包。"),
+      line(M,"難得有人記得我喜歡甜的。今天吃了，下次不知道要等到什麼時候。")
+    ],
+    replies:[
+      ["「那我每天帶一種不同的甜點來，讓學姊慢慢選出最喜歡的，好不好？」",15,[
+        line(M,"每天啊。你是給我出了一道要一輩子才能答完的題嗎？"),
+        line(N,"她把麵包掰成兩半，將紅豆比較多的那半往我面前一擱。"),
+        line(M,"明天換我準備茶。你只要記得來。")
+      ]],
+      ["「這麼小一個，對兩百四十公分的學姊來說，連塞牙縫都不夠吧？」",-10,[
+        line(M,"我其實只想嚐嚐紅豆的味道。這個大小剛好。"),
+        line(N,"她把麵包包回袋子，沒再拿白帽替我們挪出一片座位。"),
+        line(S,"我又拿身高開玩笑了。學姊，對不起。"),
+        line(M,"你要帶回去也可以。謝謝你想到我。")
+      ]]
+    ]
+  }
+});
+
+addDay("day4","Day 4｜7月26日 午後雷陣雨後",[
+  line(N,"下午那陣雷雨把社辦窗台澆濕了一半。雨停後，我們約好的地方都還在，只是去的路多了幾攤水。"),
+  line(S,"出發前先把傘套好。上次我忘了套，花子說第三間新裝了室內瀑布。"),
+  line(N,"窗外隱約露出虹光。我的手機也亮了，有三條還沒回的消息。")
+],"day5",{
+  rin:{
+    place:"操場雙彩虹",
+    invite:"「凜，我看到操場有彩虹。妳要和我去看嗎？」",
+    lines:[
+      line(N,"操場上空有雙彩虹，第二道淡得像用錯顏色的螢光筆。凜把輪椅煞在水窪旁，兩截彩虹便連在倒影裡。"),
+      line(R,"我以前遇到水窪，總想一腳踩下去。今天踩不到，有雙倍的彩虹也算賺到了。"),
+      line(S,"那妳要看好。我踩下去只會把雙倍的水濺到妳這邊。"),
+      line(R,"對了，煙火大會我想穿浴衣。不過好久沒穿了……你覺得我穿起來會好看嗎？")
+    ],
+    replies:[
+      ["「妳穿浴衣一定比煙火還漂亮。我說真的，放第一發的時候我也會先看妳。」",20,[
+        line(N,"凜扭頭看操場。她的手從輪圈滑到膝上，緊緊摺住一小角手帕。"),
+        line(R,"那你得負責告訴我煙火長什麼樣。我沒辦法同時看天上和……看你有沒有真的看我。"),
+        line(S,"成交。第一發先欠妳一段口述。")
+      ]],
+      ["「我比較擔心妳的浴衣下襬會卡進輪椅輪子裡，妳要不要乾脆別穿？」",-15,[
+        line(R,"我已經問過怎麼固定下襬了。我原本只想問……算了。"),
+        line(N,"她看著池裡的雙彩虹，直到別人跑過去把倒影切碎。"),
+        line(S,"妳剛才問我好不好看，我卻跳到別的問題上了。"),
+        line(R,"嗯。今天我想自己繞操場一圈。")
+      ]]
+    ]
+  },
+  hanako:{
+    place:"舊校舍熱可可",
+    invite:"「花子，我泡了熱可可。妳能借我窗台放兩個杯子嗎？」",
+    lines:[
+      line(N,"隔間的木板吸了雨水，棕色一深一淺。花子把杯子捧得很近，像怕熱氣一下就逃掉。"),
+      line(H,"我國中的時候想在畢業典禮領紀念品。鋼筆、胸花，什麼都行。"),
+      line(S,"妳那屆的紀念品是什麼？"),
+      line(H,"我沒去到，怎麼會知道。喂，你不要露出那副好像連可可都要哭了的表情。")
+    ],
+    replies:[
+      ["「我幫妳辦一場只屬於妳的畢業典禮，好不好？到時我會坐在第一排。」",20,[
+        line(H,"第一排只有你一個人的話，我一眼就會看到你打瞌睡。"),
+        line(S,"那我把椅子換成站席。請問畢業生要什麼花？"),
+        line(N,"花子吹了吹可可。杯緣後面，她笑得連眼睛都彎了。"),
+        line(H,"雛菊就好。我要把它夾在自己的畢業證書裡。")
+      ]],
+      ["「我看妳那些老同學現在都當上阿公阿嬤了吧？畢業典禮也太久以前了。」",-15,[
+        line(H,"嗯。我曉得日子過了很久。"),
+        line(N,"她把杯子挪到窗邊，沒再喝下一口。"),
+        line(S,"花子，妳說妳想領紀念品，我應該好好聽的。"),
+        line(H,"我知道。今天先到這裡，可以嗎？")
+      ]]
+    ]
+  },
+  hachishaku:{
+    place:"雨後銀杏樹",
+    invite:"「學姊，我把妳借我的傘帶來了。妳在銀杏樹下等我嗎？」",
+    lines:[
+      line(N,"銀杏葉每隔幾秒就滴一聲。學姊伸出手掌接住一滴，用足夠認真的表情端詳。"),
+      line(M,"暑假快過完了。返校開學以後，這條路大概又會冷清下來。"),
+      line(S,"一到開學，樓下就會有一百個人同時問我加入研究社可不可以免跑八百。"),
+      line(M,"我只是想問，等你放學了，還會不會來坐一會兒？")
+    ],
+    replies:[
+      ["「暑假結束以後，我放學還是會來看妳。我們就約在這棵銀杏下，好不好？」",20,[
+        line(M,"那我去捏兩個新的茶杯。一個矮一點，這樣你就不用兩隻手捧。"),
+        line(S,"我其實也想要有把手的。上回端起來像在舉獎盃。"),
+        line(N,"學姊笑到帽簷晃了兩下。她把回程的傘重新推到我手裡，說下次拿來還就好。")
+      ]],
+      ["「我開學要忙社團招生，大概沒空特地來後山了。」",-15,[
+        line(M,"這樣啊。那你不用急著把傘送回來。"),
+        line(N,"她把視線移到樹根。那裡原本放著兩杯茶，她端走了自己那杯。"),
+        line(S,"我還沒開學就把時間說死了。對不起。"),
+        line(M,"你先照顧好自己的事吧。山路積水，回去時慢慢走。")
+      ]]
+    ]
+  }
+});
+
+addDay("day5","Day 5｜7月28日 祭典前夕",[
+  line(N,"商店街試掛祭典燈籠，尾端那顆老是被風吹歪。我替店主拉住繩子，拿到一張能換章魚燒的券。"),
+  line(S,"今天的工資是醬多、柴魚少。研究社有了第一筆會涼掉的資產。"),
+  line(N,"趁攤子還在準備，我想先找一個人，把祭典前擱下的小事做完。")
+],"day6",{
+  rin:{
+    place:"浴衣試穿",
+    invite:"「凜，我可以陪妳試浴衣嗎？我想看妳選的花色。」",
+    lines:[
+      line(N,"凜把兩條腰帶排在輪椅扶手上。一條和浴衣上的花同色，另一條意外地很深。"),
+      line(R,"深色那條很好看，可是店員說坐著綁，結會被椅背壓扁。"),
+      line(S,"要不我先舉起來給妳看？我擔任人形衣架的收費是零。"),
+      line(N,"她把深色那條翻到正面，指尖一直停在織有小星星的末端。")
+    ],
+    replies:[
+      ["「我喜歡妳挑的深色那條。我們請店員教我怎麼把結綁在側邊，好嗎？」",15,[
+        line(R,"你還真的願意學？會要拆開重綁好幾次喔。"),
+        line(N,"我綁出一個很像粽子的結。凜拿我的手示範了第二遍，這次她沒把手縮回去。"),
+        line(R,"祭典那天我穿這套。你可要負責看出來，哪一邊是我自己綁的。")
+      ]],
+      ["「我看綁哪一條都一樣吧？坐著又沒人會注意腰帶。」",-10,[
+        line(R,"我會注意。衣服是穿給我自己的。"),
+        line(N,"她把深色腰帶摺好，請店員留下來慢慢挑，我先到外頭等她。"),
+        line(S,"我想省的是時間。但那是她好不容易留給自己的時間。")
+      ]]
+    ]
+  },
+  hanako:{
+    place:"舊檔案室",
+    invite:"「花子，我借到檔案室的鑰匙了。妳要和我一起去翻舊資料嗎？」",
+    lines:[
+      line(N,"檔案室的門剛打開，灰塵就先發表意見。花子從一疊舊校刊裡抽出一本，熟練地翻到最後一頁。"),
+      line(H,"以前這裡有塊作文園地，我每次看名單都從最後往前。"),
+      line(S,"妳覺得自己會被排最後？"),
+      line(H,"我想先看看大家的名字。……你能陪我慢慢找嗎？")
+    ],
+    replies:[
+      ["「我陪妳一頁一頁找。找到以前，我先聽妳說說坐妳隔壁的是誰，好嗎？」",15,[
+        line(H,"隔壁姓澤田。她寫字超大，最後一行永遠得往上擠兩個字。"),
+        line(N,"我們翻出一篇談草莓的作文。名字果然比其他人都大，花子笑著笑著，指尖在那裡停了很久。"),
+        line(H,"有你坐在這裡，我才記起那天其實是晴天。")
+      ]],
+      ["「這些都發霉了，我們隨便拍幾張就回去吧？反正也找不到什麼。」",-10,[
+        line(H,"你去外面等吧。這裡有些東西，照片拍不到。"),
+        line(N,"她用袖口擦乾淨封面才翻下一頁。我走到門邊，連那本校刊是哪一年的都沒記住。"),
+        line(S,"……鑰匙我留給妳，關門前都可以慢慢看。")
+      ]]
+    ]
+  },
+  hachishaku:{
+    place:"後山夜景",
+    invite:"「學姊，我可以跟妳去看後山的夜景嗎？我帶了兩杯茶。」",
+    lines:[
+      line(N,"山腰有一段封起來的舊階梯。學姊沿著另一側帶我上去，整座小鎮亮在我們腳下。"),
+      line(M,"以前我看夜景會數還亮著的窗。數到最後一盞熄掉，就回去睡。"),
+      line(S,"現在便利商店二十四小時營業。難怪妳暑假都睡不好。"),
+      line(N,"她笑過以後低頭抿茶。遠處的路口切成紅燈，沒有人經過。")
+    ],
+    replies:[
+      ["「今晚我陪學姊數到妳想回家。兩杯茶喝完，我也可以再去買。」",15,[
+        line(M,"不用跑那麼遠。你把手靠過來，茶杯的熱還在。"),
+        line(N,"她把自己的杯子貼在我的杯沿，兩道白氣在中間散開。"),
+        line(M,"今天就不數窗了。我想跟你說說，哪些人家每年都最早掛燈籠。")
+      ]],
+      ["「我拍張照就可以回去了吧？這夜景每天看不是都一樣嗎？」",-10,[
+        line(M,"好。下山路上看腳下，別看手機。"),
+        line(N,"她幫我照亮台階，自己卻停在上頭。回到山腳，我才發現手上的茶一直沒開。")
+      ]]
+    ]
+  }
+});
+
+addDay("day6","Day 6｜7月30日 祭典前夕",[
+  line(N,"明晚就要放煙火了。我在社辦的值日白板上寫『集合』，發現下面早有三個人留的筆跡。"),
+  line(S,"這社團最大的進展，是其他人開始替我決定幾點上班。"),
+  line(N,"黃昏還留了一點時間。有人等我試腰帶，有人等我讀一行舊字，有人想帶我再走一遍山路。")
+],festivalRoute,{
+  rin:{
+    place:"試衣間外的約定",
+    invite:"「凜，我來陪妳試最後一次浴衣。方便的話，我想等妳換好再一起走。」",
+    lines:[
+      line(N,"試衣間的簾子開了一點。凜露出半張臉，拿腰帶把簾角勾住。"),
+      line(R,"我把結綁好了。明晚人應該很多……如果我們走散了呢？"),
+      line(S,"我的手機有電。我們事先講好在哪裡集合也行。"),
+      line(N,"她把浴衣的袖口拉得很平，拉到同一道摺痕上來回了兩次。")
+    ],
+    replies:[
+      ["「我想和妳一起看明晚第一發煙火。我們走散了，就回平交道等彼此，好嗎？」",15,[
+        line(R,"好。不過我想先從這裡跟你走到燈籠底下，今天就練習。"),
+        line(N,"我拉開簾子一角。她自己轉動輪圈，到了門口才伸手向我借一點力。"),
+        line(S,"祭典那天也這樣。妳準備好，我們就一起出門。")
+      ]],
+      ["「我應該一眼就會看到輪椅吧？站在原地等我就好了。」",-10,[
+        line(R,"我問的是你能不能和我約個地方。"),
+        line(N,"她放開夾在手指間的袖口，把簾子輕輕拉上。"),
+        line(S,"那我們約平交道。……不過妳要是想自己逛，我也尊重妳。")
+      ]]
+    ]
+  },
+  hanako:{
+    place:"舊檔案裡的紅筆字",
+    invite:"「花子，我想和妳一起看看那本舊校刊。今天還能進檔案室嗎？」",
+    lines:[
+      line(N,"我們在一張夾進校刊的值日表背面，看見花子用紅筆寫過的名字。旁邊寫著給畢業生的鋼筆編號。"),
+      line(H,"這是我的字。你看最後一筆，老師老說我寫過頭。"),
+      line(S,"最後那筆續得很遠，看見了。妳想把這張帶走嗎？"),
+      line(H,"我不知道。以前總覺得找到了，就能把那天補回去。")
+    ],
+    replies:[
+      ["「我想聽妳親口把最後一筆念完。妳決定要留下或帶走，我都陪妳。」",15,[
+        line(N,"花子念完名字，呼了一口氣。灰塵在夕光裡往反方向飄了一點。"),
+        line(H,"借我一張乾淨的紙。我想寫上今天的日期，跟這張一起收起來。"),
+        line(S,"好。今天的值日生也可以寫我。")
+      ]],
+      ["「我看那就是張舊紙，妳把它丟掉就能放下了吧？」",-10,[
+        line(H,"放下哪有你說的那麼快。"),
+        line(N,"她把值日表塞回校刊，封面合上前，還伸手把一個翹起來的角撫平。"),
+        line(S,"抱歉。我幫妳把冊子放回去，妳告訴我要放在哪一格。")
+      ]]
+    ]
+  },
+  hachishaku:{
+    place:"山腰的最後一盞燈",
+    invite:"「學姊，今晚能帶我去看夜景嗎？我想和妳慢慢走。」",
+    lines:[
+      line(N,"學姊走得比我還慢。山腰最後一盞路燈時明時暗，她抬起白帽，朝鎮上的方向看了很久。"),
+      line(M,"你若走累了，可以先回去。我以前常一個人走這條山路。"),
+      line(S,"妳走到那盞燈，接下來要去哪裡？"),
+      line(M,"看今晚吧。有時走到這裡，我會想，或許也有人願意等我回去。")
+    ],
+    replies:[
+      ["「我會等妳。學姊如果願意，今晚就和我一起走到有燈的地方。」",15,[
+        line(N,"她放下白帽，一手把帽簷護在胸前，另一手輕輕握住我。"),
+        line(M,"好。再慢一點也可以嗎？我想把這段路走久一點。"),
+        line(S,"可以。反正我跟不上學姊平常一步跨兩階的速度。")
+      ]],
+      ["「我想學姊應該早就習慣一個人了吧？那我先回去好了。」",-10,[
+        line(M,"嗯，路燈下面有水。回去記得跨過去。"),
+        line(N,"我走了幾階再回頭。她的白帽還在原處，那一帶的路燈卻已熄了。"),
+        line(S,"她說的是想有人等她。我怎麼會聽成叫我先走。")
+      ]]
+    ]
+  }
+});
+
+Object.assign(scenes,{
+  rinFestival: scene(festivalLabel+"｜凜",[
+    line(N,"凜穿著浴衣等在燈籠底下，腰帶的結偏左。煙火升起前，一對情侶從我們面前跑過，木屐聲一路敲到橋上。"),
+    line(R,"我以前也想穿木屐跑跑看。媽媽說會跌倒。我那時候還說，跌倒了再站起來就好。"),
+    line(S,"往橋那邊走嗎？我可以幫妳推。"),
+    line(N,"凜握住輪圈。她低著頭，眼淚一滴一滴落在膝上的布料，顏色漸漸變深。"),
+    line(R,"我畢竟是個不完整的怪物，沒辦法跟你並肩走在一起……我也想跑在你前面，再回頭等你。"),
+    line(S,"我聽到了，凜。"),
+    line(N,"我還在想怎麼說，她已經從輪椅滑下來，哭著用手撐地拐進巷子。第一發煙火把空蕩蕩的椅背照白。"),
+    line(N,"我把輪椅寄放在警衛室，讓花子把回來的路留給她。然後上山，去找傳說中會賣腳的人。")
+  ],"slit"),
+  slit: scene("8月1日 凌晨｜霧中山路",[
+    line(N,"過了午夜，山路的霧比祭典散場的人潮還厚。我得在四點前找到那輛賣腳的木車。"),
+    line(N,"一道刮地聲從林子裡傳來。女人戴著口罩，手上那把剪刀比她的傘還長。","thud"),
+    line(K,"我漂亮嗎？"),
+    line(S,"這個問題通常會附一張可以勾選的紙……妳有嗎？"),
+    line(K,"不用紙。你說真話就行。")
+  ],null,[
+    choice("「抱歉，妳不是我喜歡的類型。」","badSlit"),
+    choice("「還好吧，很普通。不過我正趕著在四點前幫重要的人買雙腳，能借過嗎？」","turbo")
+  ]),
+  badSlit: scene("8月1日 凌晨｜山路急轉彎",[
+    line(K,"那就從瀏海開始，把你剪成我喜歡的類型。"),
+    line(N,"喀嚓一聲，我的瀏海短了一截。第二聲還沒響完，我已經開始跑下山。","thud"),
+    line(S,"可惡，早知道就先做田徑社的暖身！"),
+    line(N,"隔天我以十分不對稱的髮型刷新了校內百米紀錄。目擊者表示，第二名是一把剪刀。")
+  ],null,null,"slit"),
+  turbo: scene("8月1日 凌晨｜限速六十的山腰",[
+    line(K,"重要的人……你連問路都這麼直球，真以為有人受得了啊。"),
+    line(N,"她把剪刀往後收了半尺。擦身而過時，她低聲說，路口亮紅燈的方向今晚不能走。"),
+    line(N,"下一個轉彎果然有紅色反光。我還沒看清楚，一位老婆婆就以時速六十朝我衝來。","thud"),
+    line(T,"少年！跑到下一個髮夾彎！贏了我請你吃剉冰！"),
+    line(S,"這裡有速限，沒有冰店！"),
+    line(M,"學弟，過來。把頭稍微低一下。"),
+    line(N,"八尺學姊把寬邊白帽掀起。她拉我進帽簷下，山路的風和高速婆婆的腳步聲一起消失了。"),
+    line(M,"帽子裡有閉鎖空間。等她走了，我們再出聲。"),
+    line(T,"又沒人報名！我這張剉冰券到底要留到幾時？"),
+    line(M,"好了。再下一個岔路會聽見木輪。你想替凜做什麼，就好好告訴對方。")
+  ],"hag"),
+  hag: scene("8月1日 03:50｜賣腳婆婆的木車",[
+    line(N,"手錶離四點還有十分鐘。霧裡有一輛木車，車沿掛著好幾雙腳的影子。"),
+    line(L,"少年，要不要買雙腳啊？"),
+    line(S,"婆婆，妳收零錢嗎？我全身上下最值錢的大概只有這台 Switch。"),
+    line(L,"錢我已經賺夠了。你先說要給誰，我再告訴你我收什麼。"),
+    line(N,"我摸到背包裡等了三年才買到的限量版卡帶。透明盒角有一道凹痕，是到手那天太高興撞上家門留下的。")
+  ],null,[
+    choice("「我不需要，婆婆，請去別的地方吧。」","rinNormal"),
+    choice("「我要買！就裝在我自己身上吧！」","comedy"),
+    choice("「婆婆，這雙腳不是我要的，我想買給一個比任何人都渴望站在陽光下的女孩子！」","rinTrue")
+  ]),
+  rinNormal: scene("8月1日 清晨｜永遠的輪椅騎士",[
+    line(N,"木輪在石路上遠了。我回到平交道時，凜在等我。她自己去警衛室領了輪椅，旁邊有兩份早餐。"),
+    line(S,"對不起。我昨晚一著急就想替妳找個答案。最後我空手回來了。"),
+    line(R,"……那現在能空一隻手陪我吃飯嗎？推輪椅有時候我自己來，有時候會想請你幫忙。"),
+    line(S,"當然。我那隻手還能幫妳拿優格。"),
+    line(N,"很久以後，我們仍走同一條長長的走廊。到最陡那截坡，她會把手往後伸，有時叫我推一下，有時只想牽我。"),
+    line(R,"明年看煙火，我想先跟你去找一個輪椅也能到的觀賞點。這次我們一起挑。")
+  ],null,null,"normal"),
+  comedy: scene("8月1日 清晨｜三腳貓奇譚",[
+    line(L,"成。一隻就賣你了。另一隻我留著，省得同一天把兩個人的鞋櫃弄亂。"),
+    line(N,"回到學校，我下樓要打三拍，過門檻得先數清楚哪隻還沒進門。"),
+    line(R,"跑步還是跑不快耶。你多出來那隻平常打算做什麼？"),
+    line(S,"暫時用來踩住社辦那張翹起來的地墊。"),
+    line(N,"我把這段經歷寫進社刊，取名叫『三腳貓奇譚』。"),
+    line(N,"我靠這個傳說招到四名新社員。三個只想問鞋子有沒有單隻零售。")
+  ],null,null,"comedy"),
+  rinTrue: scene("8月1日 清晨｜柵欄升起以前",[
+    line(N,"我把限量版 Switch 卡帶遞出去。婆婆接住盒子，先問我裡頭有沒有手寫的攻略。"),
+    line(S,"第五關的地圖，我畫在封底。妳要是卡關，可以來問我。"),
+    line(L,"好。姑娘願不願意收，由她自己決定。天一亮，去平交道等。"),
+    line(N,"天色亮起。平交道的警鈴停下來，柵欄升高，對面有人穿著水手服，站在早晨的光裡。","bell"),
+    line(N,"凜走了兩步。第三步突然變成小跑。她的鞋帶有點鬆，我剛舉起手，她已經跑到我面前。"),
+    line(R,"早安，今天……我們可以一起走去學校嗎？"),
+    line(S,"好啊。妳想走多遠都可以。"),
+    line(R,"那先陪我去踩一個水窪。我帶了換的襪子。"),
+    line(N,"後來小鎮多了一個傳說。傍晚會有一對學生牽著手走過平交道。女生老是提早喊起跑，可是每次都在下一個路口等他。","victory")
+  ],null,null,"true"),
+  hanakoFestival: scene(festivalLabel+"｜花子",[
+    line(N,"祭典開始時，第三間的門半掩著，窗台上放著兩杯微涼的可可。花子站在對面，用指節敲了一塊鬆掉的瓷磚。"),
+    line(H,"以前教室的抽屜會被查。我把最不想被翻到的東西留在這裡。你幫我拿一下好不好？"),
+    line(N,"我小心地把磚抬開。後面是一支鏽了的鋼筆，筆帽上刻著班級，下面用指甲劃出一道歪歪的線。"),
+    line(H,"澤田同學替我領的畢業紀念品。她拿給我的時候，還笑我沒來拍照。"),
+    line(S,"她很想讓妳收到。妳看，刻歪了還是刻完了。"),
+    line(H,"是啊。我明明早就收到，卻一直待在這裡等人把我叫去典禮。"),
+    line(N,"窗外的煙火閃了一次。她握著鋼筆，另一手碰了碰門框，像有人站在自己家門口，準備第一次走遠。"),
+    line(H,"你想送我走，還是能替我找個留下來的理由？兩種都可以，我聽你說。")
+  ],null,[
+    choice("「……我知道了。一路好走，花子。」","hanakoFarewell"),
+    choice("「成佛什麼的太無聊了！從今天起這支鋼筆就是我們社團的鎮社之寶，我已經用社團結界把妳的活動範圍擴展到整座學校了，妳不准走！」","hanakoTrue")
+  ]),
+  hanakoFarewell: scene(festivalLabel+"｜花子的離校鐘",[
+    line(N,"我到校舍的廣播台找出一段放學前會播的鐘聲。花子坐在窗台，說要檢查我有沒有把音量調太大。"),
+    line(H,"我想再聽一次放學的鐘聲。就跟以前一樣大聲。"),
+    line(S,"那我幫妳把這張畢業證書押在杯子下。妳唸完名字再走。"),
+    line(N,"她用鏽筆在證書角上點了一點。墨水早就乾了，紙上只留下一個小凹痕。"),
+    line(H,"淺井悠真，以後你有開心的事，可以先說給旁邊的人聽。我在別的地方也會替你高興。"),
+    line(N,"開學第一天，我敲了第三間三下。裡面空蕩蕩的，只有窗台上那個杯子還朝著我坐的位置。")
+  ],null,null,"hanakoFarewell"),
+  hanakoTrue: scene(festivalLabel+"｜第三間的專屬指定席",[
+    line(H,"如果我想留下來，以後就能和你一起走出這間隔間嗎？"),
+    line(S,"我撤回最後那句。妳想去哪裡都行。我只希望，要是妳想留下，這裡有比那一間隔間更多地方可以去。"),
+    line(N,"我用紙把鋼筆裹好，和她一起穿過走廊。到樓梯口，她試著把腳往下一放。這次真的踩到了下一階。"),
+    line(H,"那我想先去社辦。可以在桌邊留個位置給我嗎？"),
+    line(N,"半小時後，她用那支修過的筆在名簿上簽到。下一行寫著『專屬指定席，放學後招待一位會帶草莓大福的人』。"),
+    line(S,"我是客人還是點心外送？"),
+    line(H,"今天是客人。坐近一點，我分你有草莓的半邊。","victory")
+  ],null,null,"hanakoTrue"),
+  hachiFestival: scene(festivalLabel+"｜八尺學姊",[
+    line(N,"學姊在後山等我。遠處的攤燈亮得像星星，近處卻多了幾張遊方除靈師留下的封印符。"),
+    line(M,"我能走得更深一點。那裡沒人看見我，就不會再有人來貼新的符。"),
+    line(S,"可是學姊說過，偶爾也想走到有燈的地方。"),
+    line(N,"我請她按住快被風吹掉的那一角，把兩張朝向山裡的封印符改成朝外。封住出口的結界鬆開，變成替這段小徑擋風的守護結界。"),
+    line(M,"你還真的有在讀社團的傳承筆記。"),
+    line(S,"封印和保護那兩頁黏在一起。我拆了三個晚上。"),
+    line(N,"學姊放下白帽。山裡和鎮上各有一條能走的路，這回，誰也沒有替她封起其中一條。")
+  ],null,[
+    choice("「我送妳到山腳下吧，學姊，在深山裡也要保重自己。」","hachiFarewell"),
+    choice("「別去深山流浪了！加入我們『都市傳說研究社』當守護神吧，總有一天我會長高到能親手替妳戴上這頂帽子的！」","hachiTrue")
+  ]),
+  hachiFarewell: scene(festivalLabel+"｜白帽子的夏夜殘響",[
+    line(N,"我們並肩走到山腳，路燈剛亮。她以前一步能走完的距離，今晚都拆成兩步。"),
+    line(M,"謝謝你把路留給我。也許我會回來。你還記得哪家的甜點開到最晚嗎？"),
+    line(S,"記得。老闆要是改了營業時間，我就把新的時間寫在銀杏樹下。"),
+    line(N,"她笑著摘下白帽。帽簷微微壓過我的頭髮，是一個有點笨拙的告別。"),
+    line(N,"煙火最後一聲落進山裡。我在路燈下站了好一會兒，等那點白色慢慢走遠。")
+  ],null,null,"hachiFarewell"),
+  hachiTrue: scene(festivalLabel+"｜兩個人的屋簷",[
+    line(M,"你還在長高嗎，學弟？去年的健康紀錄表上寫的是……"),
+    line(S,"等一下，原來學姊有看那張？它完全沒有考慮到我今天想逞強的心情！"),
+    line(N,"學姊彎下膝，把自己的白帽交到我手裡。這次我替她戴上，帽簷一邊高一邊低。"),
+    line(M,"這樣就很夠了。以後我負責守護社辦，你負責陪我去買茶。店員要是問我是誰……"),
+    line(S,"我會說妳是都市傳說研究社的學姊。今天跟我一起下山。"),
+    line(N,"她握住我的手。走到有燈的地方以後，帽子已經擋不到光，她仍然沒有鬆開。","victory")
+  ],null,null,"hachiTrue"),
+  common: scene(festivalLabel+"｜舊校舍頂樓",[
+    line(N,"我把煙火地圖攤在舊校舍頂樓的地上。凜停穩輪椅，花子負責拿風扇，學姊把熱得燙手的章魚燒擱到中間。"),
+    line(S,"各位社員，今晚的研究題目是，最後一顆章魚燒到底應不應該劃為社產。"),
+    line(H,"我從牆那邊拿幾支牙籤過來。"),
+    line(R,"妳穿牆伸手那一招不能算。至少把牙籤留在我們看得見的地方。"),
+    line(M,"我多買了一盒，放在帽子後面。誰要第一顆？"),
+    line(N,"煙火綻開時，我們四個同時伸手，撞得章魚燒掉回盒子裡。沒有人急著拿，反倒一起抬頭看完了下一發。"),
+    line(N,"這個夏天的社團合照，只有我一個人望著鏡頭。另外三個都在笑。照片到開學那天，還貼在社辦門上。","victory")
+  ],null,null,"common")
+});
+
+const endings = {
+  run:{num:1,type:"Bad End",title:"都市傳說的標準受害者"},
+  dance:{num:2,type:"Bad End",title:"SAN值歸零的扭動社團"},
+  slit:{num:3,type:"Bad End",title:"術式順轉・大剪刀追殺"},
+  normal:{num:4,type:"Rin Normal End",title:"永遠的輪椅騎士"},
+  comedy:{num:5,type:"Hidden Comedy End",title:"三腳貓奇譚"},
+  true:{num:6,type:"Rin True End",title:"夕陽下的並肩散步",heroine:R},
+  hanakoFarewell:{num:7,type:"Hanako Bittersweet End",title:"放學後的空蕩隔間"},
+  hanakoTrue:{num:8,type:"Hanako True End",title:"第三間的專屬指定席",heroine:H},
+  hachiFarewell:{num:9,type:"Hachishaku Bittersweet End",title:"白帽子的夏夜殘響"},
+  hachiTrue:{num:10,type:"Hachishaku True End",title:"240公分的溫柔庇護所",heroine:M},
+  common:{num:11,type:"Common End",title:"百鬼夜行的愉快社團"}
+};
+
+const SAVE_KEY = "midnight-crossing.v2";
+let storageAvailable = true;
+function readData() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; }
+  catch { return {}; }
+}
+const saved = readData();
+const profile = {
+  slots: Array.from({length:3},(_,i)=>saved.slots?.[i] ?? null),
+  unlocked: new Set(Array.isArray(saved.unlocked) ? saved.unlocked.filter(id=>Object.hasOwn(endings,id)) : []),
+  muted: saved.muted===true
+};
+function persist() {
+  try {
+    localStorage.setItem(SAVE_KEY,JSON.stringify({...profile,unlocked:[...profile.unlocked]}));
+    return true;
+  } catch {
+    storageAvailable=false;
+    return false;
+  }
+}
+
+let audio, output;
+function wakeAudio() {
+  if (profile.muted) return;
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!audio && AudioContext) {
+      audio=new AudioContext();
+      output=audio.createGain();
+      output.connect(audio.destination);
+    }
+    if (audio?.state==="suspended") audio.resume().catch(()=>{});
+  } catch { /* Audio is optional on browsers without a usable audio output. */ }
+}
+function tone(frequency, offset, duration, volume, type="sine", endFrequency=frequency) {
+  if (!output || audio.state==="closed") return;
+  const start=audio.currentTime+offset+.008;
+  const oscillator=audio.createOscillator();
+  const envelope=audio.createGain();
+  oscillator.type=type;
+  oscillator.frequency.setValueAtTime(frequency,start);
+  oscillator.frequency.exponentialRampToValueAtTime(endFrequency,start+duration);
+  envelope.gain.setValueAtTime(.0001,start);
+  envelope.gain.exponentialRampToValueAtTime(volume,start+.009);
+  envelope.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  oscillator.connect(envelope).connect(output);
+  oscillator.start(start);
+  oscillator.stop(start+duration+.012);
+}
+const effects = {
+  bell:()=>[0,.33,.66].forEach(t=>{tone(1046,t,.19,.085,"triangle",1024);tone(1600,t,.13,.035,"sine",1540);}),
+  blip:()=>tone(470,0,.035,.032,"triangle",410),
+  chime:()=>[523,660,784].forEach((frequency,i)=>tone(frequency,i*.075,.20,.065,"triangle")),
+  thud:()=>[0,.16,.61,.77].forEach(t=>tone(90,t,.155,.15,"sine",38)),
+  victory:()=>[523,659,784,1047,988,1047].forEach((frequency,i)=>tone(frequency,i*.155,i===5?.52:.24,.083,"triangle"))
+};
+function sound(name) { if (!profile.muted && audio && effects[name]) effects[name](); }
+function renderSound() {
+  $("sound").textContent=(profile.muted?"音效關閉":"音效開啟");
+  $("sound").setAttribute("aria-pressed",String(!profile.muted));
+  $("sound").setAttribute("aria-label",profile.muted?"取消靜音":"靜音");
+}
+$("sound").addEventListener("click",()=>{
+  profile.muted=!profile.muted;
+  if (output) output.gain.setValueAtTime(profile.muted?0:1,audio.currentTime);
+  if (!profile.muted) { wakeAudio(); sound("chime"); }
+  persist();
+  renderSound();
+});
+document.addEventListener("pointerdown",event=>{ if (event.isTrusted && !$("sound").contains(event.target)) wakeAudio(); });
+
+const modal=$("modal");
+let mode="title", state, playback="manual", typing, advanceTimer, toastTimer;
+const heroines = ["rin","hanako","hachishaku"];
+const freshState = () => ({id:"intro",index:0,affection:{rin:0,hanako:0,hachishaku:0},choosing:false,history:[],lastChoice:null});
+function festivalRoute({affection}) {
+  let lead = null;
+  // Ties follow the order of the heroines' invitations.
+  for (const heroine of heroines) {
+    if (affection[heroine]>=45 && (lead===null || affection[heroine]>affection[lead])) lead=heroine;
+  }
+  return {rin:"rinFestival",hanako:"hanakoFestival",hachishaku:"hachiFestival"}[lead] ?? "common";
+}
+const endNumber = end => `END ${String(end.num).padStart(2,"0")}/${Object.keys(endings).length} · ${end.type}`;
+const successTitle = end => end.heroine ? `${end.heroine}攻略成功` : "";
+function announce(text) {
+  clearTimeout(toastTimer);
+  $("toast").textContent=text;
+  $("toast").hidden=false;
+  toastTimer=setTimeout(()=>{ $("toast").hidden=true; },2900);
+}
+function setMode(nextMode) {
+  mode=nextMode;
+  $("titleScreen").hidden=nextMode!=="title";
+  $("gameScreen").hidden=nextMode!=="game";
+  $("endingScreen").hidden=nextMode!=="ending";
+}
+function stopTimers() {
+  clearTimeout(advanceTimer);
+  if (typing) clearTimeout(typing.timer);
+}
+function setPlayback(nextMode) {
+  playback=nextMode;
+  $("auto").setAttribute("aria-pressed",String(playback==="auto"));
+  $("skip").setAttribute("aria-pressed",String(playback==="skip"));
+}
+function updateGalleryCount() { $("galleryCount").textContent=`${profile.unlocked.size} / ${Object.keys(endings).length}`; }
+function titleScreen() {
+  stopTimers();
+  clearTimeout(toastTimer);
+  $("toast").hidden=true;
+  typing=null;
+  setPlayback("manual");
+  setMode("title");
+  updateGalleryCount();
+  if (state) $("start").focus({preventScroll:true});
+}
+function currentLine() { return scenes[state.id].lines[state.index]; }
+function drawLocation() {
+  $("chapter").textContent=scenes[state.id].label;
+}
+function scheduleAdvance() {
+  clearTimeout(advanceTimer);
+  if (mode!=="game" || modal.open || state.choosing || typing || playback==="manual") return;
+  const delay=playback==="skip"?95:Math.max(3400,Array.from(currentLine().text).length*72+1800);
+  advanceTimer=setTimeout(advance,delay);
+}
+function completeLine() {
+  if (typing) clearTimeout(typing.timer);
+  typing=null;
+  $("line").textContent=currentLine().text;
+  $("next").hidden=state.choosing;
+  scheduleAdvance();
+}
+function typeCharacter() {
+  if (!typing || modal.open) return;
+  typing.position++;
+  $("line").textContent=typing.characters.slice(0,typing.position).join("");
+  if (typing.position>=typing.characters.length) { completeLine(); return; }
+  if (typing.position%5===1) sound("blip");
+  const char=typing.characters[typing.position-1];
+  typing.timer=setTimeout(typeCharacter,/[。！？…]/.test(char)?100:32);
+}
+function drawChoices(focus) {
+  $("choices").replaceChildren();
+  $("choices").hidden=!state.choosing;
+  $("dialogue").disabled=state.choosing;
+  if (!state.choosing) return;
+  setPlayback("manual");
+  scenes[state.id].picks.forEach(pick=>{
+    const button=document.createElement("button");
+    button.textContent=pick.text;
+    button.addEventListener("click",()=>pickChoice(pick));
+    $("choices").append(button);
+  });
+  if (focus) $("choices").querySelector("button")?.focus({preventScroll:true});
+}
+function renderLine({animate=true,playFx=true,focus=false}={}) {
+  stopTimers();
+  typing=null;
+  drawLocation();
+  drawChoices(focus && state.choosing);
+  $("speaker").textContent=currentLine().who;
+  $("dialogue").setAttribute("aria-label",state.choosing?"請選擇劇情選項":`${currentLine().who}：${currentLine().text}，繼續對話`);
+  if (playFx && playback!=="skip") sound(currentLine().fx);
+  if (!animate || state.choosing || playback==="skip" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    completeLine();
+  } else {
+    $("next").hidden=true;
+    typing={characters:Array.from(currentLine().text),position:0,timer:null};
+    typeCharacter();
+  }
+  if (focus && !state.choosing) $("dialogue").focus({preventScroll:true});
+}
+function recordLine() {
+  const {who,text}=currentLine();
+  state.history.push({who,text});
+}
+function enterScene(id,focus=false) {
+  Object.assign(state,{id,index:0,choosing:false});
+  recordLine();
+  renderLine({focus});
+}
+function startGame() {
+  wakeAudio();
+  setPlayback("manual");
+  state=freshState();
+  setMode("game");
+  enterScene("intro",true);
+}
+function advance() {
+  if (mode!=="game" || modal.open || state.choosing) return;
+  if (typing) { completeLine(); return; }
+  const currentScene=scenes[state.id];
+  if (state.index+1<currentScene.lines.length) {
+    state.index++;
+    recordLine();
+    renderLine();
+  } else if (currentScene.picks) {
+    state.choosing=true;
+    renderLine({animate:false,playFx:false,focus:true});
+  } else if (currentScene.next) {
+    const next=typeof currentScene.next==="function" ? currentScene.next(state) : currentScene.next;
+    enterScene(next);
+  } else {
+    showEnding(currentScene.ending);
+  }
+}
+function pickChoice(pick) {
+  if (!state.choosing) return;
+  wakeAudio();
+  sound("chime");
+  const {id,index,affection,history}=state;
+  state.lastChoice={id,index,affection:{...affection},historyLength:history.length};
+  for (const [heroine,points] of Object.entries(pick.delta)) affection[heroine]+=points;
+  history.push({who:S,text:pick.text});
+  enterScene(pick.to,true);
+}
+function showEnding(id) {
+  stopTimers();
+  setPlayback("manual");
+  const end=endings[id];
+  profile.unlocked.add(id);
+  if (!persist()) announce("此瀏覽器目前無法寫入本機儲存。結局已記錄於本次遊戲。");
+  setMode("ending");
+  $("endingScreen").classList.toggle("is-success",Boolean(end.heroine));
+  $("endSuccess").hidden=!end.heroine;
+  $("endSuccess").textContent=successTitle(end);
+  $("endNumber").textContent=endNumber(end);
+  $("endTitle").textContent=end.title;
+  $("backChoice").hidden=!state.lastChoice;
+  (state.lastChoice?$("backChoice"):$("endHome")).focus({preventScroll:true});
+}
+function rewindChoice() {
+  const checkpoint=state.lastChoice;
+  if (!checkpoint) return;
+  state={id:checkpoint.id,index:checkpoint.index,affection:{...checkpoint.affection},choosing:true,history:state.history.slice(0,checkpoint.historyLength),lastChoice:checkpoint};
+  setMode("game");
+  renderLine({animate:false,playFx:false,focus:true});
+}
+function togglePlayback(nextMode) {
+  setPlayback(playback===nextMode?"manual":nextMode);
+  if (state.choosing && playback!=="manual") {
+    setPlayback("manual");
+    announce("請先選擇劇情選項");
+    return;
+  }
+  if (playback==="skip" && typing) completeLine();
+  else scheduleAdvance();
+}
+
+function createEntry(title,detail,action) {
+  const element=document.createElement(action?"button":"div");
+  if (!action) element.className="locked";
+  element.textContent=title;
+  if (detail) {
+    const small=document.createElement("small");
+    small.textContent=detail;
+    element.append(small);
+  }
+  if (action) element.addEventListener("click",action);
+  $("entries").append(element);
+}
+function validPosition(position) {
+  if (!position || !Object.hasOwn(scenes,position.id)) return false;
+  return Number.isInteger(position.index) && position.index>=0 && position.index<scenes[position.id].lines.length &&
+    position.affection && heroines.every(heroine=>Number.isInteger(position.affection[heroine]));
+}
+function validSave(slot) {
+  return validPosition(slot?.progress) && Array.isArray(slot.progress.history);
+}
+function saveSlot(index) {
+  profile.slots[index]={progress:JSON.parse(JSON.stringify(state)),unlocked:[...profile.unlocked],time:new Date().toISOString()};
+  if (persist()) announce(`已儲存至欄位 ${index+1}`);
+  else announce("無法寫入本機儲存。這個存檔可在本次遊戲中使用。");
+  renderPanel("save");
+  $("entries").children[index].focus();
+}
+function loadSlot(index) {
+  const slot=profile.slots[index];
+  if (!validSave(slot)) return;
+  state=JSON.parse(JSON.stringify(slot.progress));
+  if (!validPosition(state.lastChoice) || !scenes[state.lastChoice.id].picks) state.lastChoice=null;
+  state.choosing=Boolean(state.choosing && scenes[state.id].picks);
+  if (Array.isArray(slot.unlocked)) slot.unlocked.forEach(id=>{ if (Object.hasOwn(endings,id)) profile.unlocked.add(id); });
+  persist();
+  stopTimers();
+  setPlayback("manual");
+  modal.close();
+  setMode("game");
+  renderLine({animate:false,playFx:false,focus:true});
+  announce(`已讀取欄位 ${index+1}`);
+}
+function renderPanel(panel) {
+  $("panelTitle").textContent={save:"存檔",load:"讀取進度",log:"歷史對話",gallery:"結局圖鑑"}[panel];
+  $("entries").replaceChildren();
+  $("panelNav").hidden=mode!=="game" || panel!=="log";
+  if (panel==="save" || panel==="load") {
+    profile.slots.forEach((slot,i)=>{
+      const filled=validSave(slot);
+      const detail=filled?`${scenes[slot.progress.id].label} · ${new Date(slot.time).toLocaleString("zh-TW",{hour12:false})}`:"空白欄位";
+      createEntry(`欄位 0${i+1}`,detail,panel==="save"?()=>saveSlot(i):filled?()=>loadSlot(i):null);
+    });
+    if (!storageAvailable) createEntry("目前僅能在本次遊戲中使用存檔");
+  } else if (panel==="gallery") {
+    Object.entries(endings).forEach(([id,end])=>{
+      if (profile.unlocked.has(id)) createEntry(`${endNumber(end)} · ${end.title}`,successTitle(end));
+      else createEntry(`END ${String(end.num).padStart(2,"0")}/${Object.keys(endings).length} · 未解鎖`);
+    });
+  } else {
+    const fragment=document.createDocumentFragment();
+    state.history.forEach(({who,text})=>{
+      const paragraph=document.createElement("p");
+      const name=document.createElement("strong");
+      name.textContent=who;
+      paragraph.append(name,text);
+      fragment.append(paragraph);
+    });
+    $("entries").append(fragment);
+  }
+}
+function openPanel(panel) {
+  stopTimers();
+  renderPanel(panel);
+  modal.showModal();
+  modal.scrollTop=panel==="log"?modal.scrollHeight:0;
+}
+modal.addEventListener("close",()=>{
+  if (mode!=="game" || modal.open) return;
+  if (typing) {
+    clearTimeout(typing.timer);
+    typing.timer=setTimeout(typeCharacter,32);
+  } else scheduleAdvance();
+});
+modal.addEventListener("click",event=>{ if (event.target===modal) modal.close(); });
+$("closePanel").addEventListener("click",()=>modal.close());
+$("gameHome").addEventListener("click",()=>{ modal.close(); titleScreen(); });
+$("start").addEventListener("click",startGame);
+$("continue").addEventListener("click",()=>openPanel("load"));
+$("gallery").addEventListener("click",()=>openPanel("gallery"));
+$("dialogue").addEventListener("click",advance);
+$("auto").addEventListener("click",()=>togglePlayback("auto"));
+$("skip").addEventListener("click",()=>togglePlayback("skip"));
+$("endHome").addEventListener("click",titleScreen);
+$("backChoice").addEventListener("click",rewindChoice);
+document.querySelectorAll("[data-panel]").forEach(button=>button.addEventListener("click",()=>openPanel(button.dataset.panel)));
+document.addEventListener("keydown",event=>{
+  if (mode!=="game" || modal.open || ["BUTTON","INPUT"].includes(event.target.tagName)) return;
+  if (event.code==="Space" || event.code==="Enter") { event.preventDefault(); advance(); }
+});
+renderSound();
+titleScreen();
+</script>
+</body>
+</html>
