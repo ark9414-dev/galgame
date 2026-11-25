@@ -70,12 +70,13 @@ h1 span { display:block;color:var(--accent) }
   box-shadow:0 0 32px #e8aa7740,inset 0 0 0 4px #d4a26b25;
 }
 .is-success .end-kicker { color:#e7c7a7 }
-.end-success {
+.end-player-title {
   margin:0 0 12px;
-  color:#ffdda7;
-  font:750 clamp(16px,3vw,23px)/1.4 var(--serif);
+  color:var(--accent);
+  font:750 clamp(22px,4vw,32px)/1.4 var(--serif);
   letter-spacing:.12em;
 }
+.is-success .end-player-title { color:#ffdda7 }
 .is-success .endcard h2 { color:#fff1d6 }
 .is-success .end-actions button:last-child { background:#ffdda7;border-color:#ffdda7 }
 .is-success .end-actions button:last-child:hover { background:#fff1d6 }
@@ -133,9 +134,9 @@ dialog::backdrop { background:#0b0818bb }
         <div class="choices" id="choices" aria-label="劇情選項" hidden></div>
       </div>
     </section>
-    <section class="ending-screen" id="endingScreen" aria-labelledby="endTitle" hidden>
+    <section class="ending-screen" id="endingScreen" aria-labelledby="endPlayerTitle endTitle" hidden>
       <article class="endcard">
-        <p class="end-success" id="endSuccess" hidden></p>
+        <p class="end-player-title" id="endPlayerTitle" hidden></p>
         <div class="end-kicker" id="endNumber"></div>
         <h2 id="endTitle"></h2>
         <div class="end-actions"><button id="backChoice">回到最後選項</button><button id="endHome">返回標題</button></div>
@@ -756,12 +757,12 @@ const endings = {
   slit:{num:3,type:"Bad End",title:"術式順轉・大剪刀追殺"},
   normal:{num:4,type:"Rin Normal End",title:"永遠的輪椅騎士"},
   comedy:{num:5,type:"Hidden Comedy End",title:"三腳貓奇譚"},
-  true:{num:6,type:"Rin True End",title:"夕陽下的並肩散步",heroine:R},
+  true:{num:6,type:"Rin True End",title:"夕陽下的並肩散步",success:true,playerTitle:"你是少女控"},
   hanakoFarewell:{num:7,type:"Hanako Bittersweet End",title:"放學後的空蕩隔間"},
-  hanakoTrue:{num:8,type:"Hanako True End",title:"第三間的專屬指定席",heroine:H},
+  hanakoTrue:{num:8,type:"Hanako True End",title:"第三間的專屬指定席",success:true,playerTitle:"你是羅莉控"},
   hachiFarewell:{num:9,type:"Hachishaku Bittersweet End",title:"白帽子的夏夜殘響"},
-  hachiTrue:{num:10,type:"Hachishaku True End",title:"240公分的溫柔庇護所",heroine:M},
-  common:{num:11,type:"Common End",title:"百鬼夜行的愉快社團"}
+  hachiTrue:{num:10,type:"Hachishaku True End",title:"240公分的溫柔庇護所",success:true,playerTitle:"你是御姐控"},
+  common:{num:11,type:"Common End",title:"百鬼夜行的愉快社團",playerTitle:"你是臭直男"}
 };
 
 const SAVE_KEY = "midnight-crossing.v2";
@@ -849,7 +850,6 @@ function festivalRoute({affection}) {
   return {rin:"rinFestival",hanako:"hanakoFestival",hachishaku:"hachiFestival"}[lead] ?? "common";
 }
 const endNumber = end => `END ${String(end.num).padStart(2,"0")}/${Object.keys(endings).length} · ${end.type}`;
-const successTitle = end => end.heroine ? `${end.heroine}攻略成功` : "";
 function announce(text) {
   clearTimeout(toastTimer);
   $("toast").textContent=text;
@@ -990,9 +990,9 @@ function showEnding(id) {
   profile.unlocked.add(id);
   if (!persist()) announce("此瀏覽器目前無法寫入本機儲存。結局已記錄於本次遊戲。");
   setMode("ending");
-  $("endingScreen").classList.toggle("is-success",Boolean(end.heroine));
-  $("endSuccess").hidden=!end.heroine;
-  $("endSuccess").textContent=successTitle(end);
+  $("endingScreen").classList.toggle("is-success",Boolean(end.success));
+  $("endPlayerTitle").hidden=!end.playerTitle;
+  $("endPlayerTitle").textContent=end.playerTitle ?? "";
   $("endNumber").textContent=endNumber(end);
   $("endTitle").textContent=end.title;
   $("backChoice").hidden=!state.lastChoice;
@@ -1071,7 +1071,7 @@ function renderPanel(panel) {
     if (!storageAvailable) createEntry("目前僅能在本次遊戲中使用存檔");
   } else if (panel==="gallery") {
     Object.entries(endings).forEach(([id,end])=>{
-      if (profile.unlocked.has(id)) createEntry(`${endNumber(end)} · ${end.title}`,successTitle(end));
+      if (profile.unlocked.has(id)) createEntry(`${endNumber(end)} · ${end.title}`,end.playerTitle);
       else createEntry(`END ${String(end.num).padStart(2,"0")}/${Object.keys(endings).length} · 未解鎖`);
     });
   } else {
